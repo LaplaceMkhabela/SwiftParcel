@@ -21,6 +21,6 @@ public class StandardParcel extends Parcel {
 
     @Override
     public String serviceLevel() {
-        return "STANDARD";
+        return "Standard";
     }
 }

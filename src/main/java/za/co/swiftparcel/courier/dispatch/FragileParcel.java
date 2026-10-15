@@ -29,7 +29,7 @@ public class FragileParcel extends Parcel implements Insurable {
 
     @Override
     public String serviceLevel() {
-        return "FRAGILE";
+        return "Fragile";
     }
 
     @Override
