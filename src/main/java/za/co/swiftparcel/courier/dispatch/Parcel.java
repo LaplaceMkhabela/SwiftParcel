@@ -4,7 +4,7 @@ public abstract class Parcel {
     private final String trackingNumber;
     private final String senderName;
     private String recipientAddress;
-    private final double weightKg;
+    private double weightKg;
     private boolean delivered;
 
     public Parcel(String trackingNumber, String senderName, String recipientAddress, double weightKg) {
@@ -39,6 +39,13 @@ public abstract class Parcel {
 
     public double getWeightKg() {
         return weightKg;
+    }
+
+    public void updateWeightKg(double weightKg) {
+        if (weightKg <= 0) {
+            throw new IllegalArgumentException("Weight must be greater than 0");
+        }
+        this.weightKg = weightKg;
     }
 
     public boolean isDelivered() {
