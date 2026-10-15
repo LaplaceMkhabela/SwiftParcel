@@ -16,7 +16,12 @@ public class DispatchCentre {
         return centreName;
     }
 
-    public void dispatch(Parcel parcel) {
+    public void addParcel(Parcel parcel) {
+        boolean duplicate = parcels.stream()
+                .anyMatch(existing -> existing.getTrackingNumber().equals(parcel.getTrackingNumber()));
+        if (duplicate) {
+            throw new IllegalArgumentException("A parcel with tracking number " + parcel.getTrackingNumber() + " is already present");
+        }
         parcels.add(parcel);
     }
 
