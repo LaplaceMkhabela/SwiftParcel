@@ -6,15 +6,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InsurableTest {
     @Test
-    void testFragileParcelIsInsurable() {
-        FragileParcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5);
-        assertTrue(parcel.isInsurable());
+    void testFragileParcelDeclaredValue() {
+        FragileParcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5, 1000.0);
+        assertEquals(1000.0, parcel.getDeclaredValue(), 0.001);
     }
 
     @Test
     void testFragileParcelInsurancePremium() {
-        FragileParcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5);
-        assertEquals(0.40, parcel.getInsurancePremium(), 0.001);
+        FragileParcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5, 1000.0);
+        assertEquals(20.0, parcel.insurancePremium(), 0.001);
     }
 
     @Test
