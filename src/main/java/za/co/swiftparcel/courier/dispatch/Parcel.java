@@ -30,7 +30,10 @@ public abstract class Parcel {
         return recipientAddress;
     }
 
-    public void setRecipientAddress(String recipientAddress) {
+    public void updateRecipientAddress(String recipientAddress) {
+        if (delivered) {
+            throw new IllegalStateException("Cannot update the recipient address of a delivered parcel");
+        }
         this.recipientAddress = recipientAddress;
     }
 
