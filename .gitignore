@@ -1,6 +1,15 @@
 # Compiled class file
 *.class
 
+# Maven build output
+target/
+
+# SQLite database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
 # Log file
 *.log
 
@@ -12,6 +21,7 @@
 
 # Package Files #
 *.jar
+!.mvn/wrapper/maven-wrapper.jar
 *.war
 *.nar
 *.ear
