@@ -2,31 +2,48 @@ package za.co.swiftparcel.courier.dispatch;
 
 public abstract class Parcel {
     private final String trackingNumber;
-    private final String origin;
-    private final String destination;
-    private final double weight;
+    private final String senderName;
+    private String recipientAddress;
+    private final double weightKg;
+    private boolean delivered;
 
-    public Parcel(String trackingNumber, String origin, String destination, double weight) {
+    public Parcel(String trackingNumber, String senderName, String recipientAddress, double weightKg) {
+        if (weightKg <= 0) {
+            throw new IllegalArgumentException("Weight must be greater than 0");
+        }
         this.trackingNumber = trackingNumber;
-        this.origin = origin;
-        this.destination = destination;
-        this.weight = weight;
+        this.senderName = senderName;
+        this.recipientAddress = recipientAddress;
+        this.weightKg = weightKg;
+        this.delivered = false;
     }
 
     public String getTrackingNumber() {
         return trackingNumber;
     }
 
-    public String getOrigin() {
-        return origin;
+    public String getSenderName() {
+        return senderName;
     }
 
-    public String getDestination() {
-        return destination;
+    public String getRecipientAddress() {
+        return recipientAddress;
     }
 
-    public double getWeight() {
-        return weight;
+    public void setRecipientAddress(String recipientAddress) {
+        this.recipientAddress = recipientAddress;
+    }
+
+    public double getWeightKg() {
+        return weightKg;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public void markDelivered() {
+        this.delivered = true;
     }
 
     public abstract double calculateCost();

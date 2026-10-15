@@ -7,18 +7,18 @@ public class FragileParcel extends Parcel implements Insurable {
 
     private double declaredValue;
 
-    public FragileParcel(String trackingNumber, String origin, String destination, double weight) {
-        this(trackingNumber, origin, destination, weight, 0.0);
+    public FragileParcel(String trackingNumber, String senderName, String recipientAddress, double weightKg) {
+        this(trackingNumber, senderName, recipientAddress, weightKg, 0.0);
     }
 
-    public FragileParcel(String trackingNumber, String origin, String destination, double weight, double declaredValue) {
-        super(trackingNumber, origin, destination, weight);
+    public FragileParcel(String trackingNumber, String senderName, String recipientAddress, double weightKg, double declaredValue) {
+        super(trackingNumber, senderName, recipientAddress, weightKg);
         this.declaredValue = declaredValue;
     }
 
     @Override
     public double calculateCost() {
-        return BASE_RATE + (getWeight() * WEIGHT_RATE);
+        return BASE_RATE + (getWeightKg() * WEIGHT_RATE);
     }
 
     @Override
