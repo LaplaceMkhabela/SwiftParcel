@@ -8,19 +8,19 @@ class ParcelTypesTest {
     @Test
     void testStandardParcelType() {
         Parcel parcel = new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5);
-        assertEquals("STANDARD", parcel.serviceLevel());
+        assertEquals("Standard", parcel.serviceLevel());
     }
 
     @Test
     void testExpressParcelType() {
-        Parcel parcel = new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5);
-        assertEquals("EXPRESS", parcel.serviceLevel());
+        Parcel parcel = new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5, 0.0);
+        assertEquals("Express", parcel.serviceLevel());
     }
 
     @Test
     void testFragileParcelType() {
-        Parcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5);
-        assertEquals("FRAGILE", parcel.serviceLevel());
+        Parcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5, 0.0, "Handle with care");
+        assertEquals("Fragile", parcel.serviceLevel());
     }
 
     @Test
@@ -31,13 +31,13 @@ class ParcelTypesTest {
 
     @Test
     void testExpressParcelCost() {
-        Parcel parcel = new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5);
+        Parcel parcel = new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5, 0.0);
         assertEquals(27.50, parcel.deliveryFee(), 0.001);
     }
 
     @Test
     void testFragileParcelCost() {
-        Parcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5);
+        Parcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5, 0.0, "Handle with care");
         assertEquals(20.00, parcel.deliveryFee(), 0.001);
     }
 }
