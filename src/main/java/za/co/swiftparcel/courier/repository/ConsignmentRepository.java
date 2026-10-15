@@ -1,9 +1,11 @@
 package za.co.swiftparcel.courier.repository;
 
 import za.co.swiftparcel.courier.model.Consignment;
+import za.co.swiftparcel.courier.model.DeliveryAttempt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -39,6 +41,33 @@ public class ConsignmentRepository {
             statement.setInt(8, consignment.isOnHold() ? 1 : 0);
             statement.setNull(9, Types.INTEGER);
             statement.executeUpdate();
+        }
+    }
+
+    public void recordAttempt(String trackingNo, DeliveryAttempt attempt) throws SQLException {
+        String sql = """
+                INSERT INTO delivery_attempts (parcel_id, attempted_at, outcome, driver_note)
+                VALUES (?, ?, ?, ?)
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, findParcelId(trackingNo));
+            statement.setString(2, attempt.getAttemptedAt().toString());
+            statement.setString(3, attempt.getOutcome().name());
+            statement.setString(4, attempt.getDriverNote());
+            statement.executeUpdate();
+        }
+    }
+
+    private long findParcelId(String trackingNo) throws SQLException {
+        String sql = "SELECT id FROM parcels WHERE tracking_no = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, trackingNo);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new IllegalArgumentException("No parcel with tracking number " + trackingNo);
+                }
+                return resultSet.getLong("id");
+            }
         }
     }
 }
