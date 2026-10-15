@@ -2,6 +2,8 @@ package za.co.swiftparcel.courier.dispatch;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class DispatchCentreTest {
@@ -42,6 +44,16 @@ class DispatchCentreTest {
         Parcel parcel = new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5);
         centre.addParcel(parcel);
         assertThrows(UnsupportedOperationException.class, () -> centre.getParcels().add(parcel));
+    }
+
+    @Test
+    void testInsurableParcelsFiltersInsurableParcels() {
+        DispatchCentre centre = new DispatchCentre("Cape Town Hub");
+        centre.addParcel(new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5));
+        centre.addParcel(new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5, 500.0));
+        centre.addParcel(new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5, 1000.0, "Handle with care"));
+        List<Insurable> insurable = centre.insurableParcels();
+        assertEquals(2, insurable.size());
     }
 
     @Test

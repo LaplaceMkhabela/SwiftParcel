@@ -37,6 +37,16 @@ public class DispatchCentre {
                 .orElse(null);
     }
 
+    public List<Insurable> insurableParcels() {
+        List<Insurable> insurable = new ArrayList<>();
+        for (Parcel parcel : parcels) {
+            if (parcel instanceof Insurable) {
+                insurable.add((Insurable) parcel);
+            }
+        }
+        return insurable;
+    }
+
     public double calculateTotalCost() {
         return parcels.stream()
                 .mapToDouble(Parcel::deliveryFee)
