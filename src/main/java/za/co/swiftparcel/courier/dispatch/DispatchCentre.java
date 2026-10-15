@@ -47,7 +47,7 @@ public class DispatchCentre {
         return insurable;
     }
 
-    public double calculateTotalCost() {
+    public double totalDeliveryRevenue() {
         return parcels.stream()
                 .mapToDouble(Parcel::deliveryFee)
                 .sum();

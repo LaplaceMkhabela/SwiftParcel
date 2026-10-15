@@ -61,12 +61,12 @@ class DispatchCentreTest {
         DispatchCentre centre = new DispatchCentre("Cape Town Hub");
         centre.addParcel(new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5));
         centre.addParcel(new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5, 0.0));
-        assertEquals(38.75, centre.calculateTotalCost(), 0.001);
+        assertEquals(38.75, centre.totalDeliveryRevenue(), 0.001);
     }
 
     @Test
     void testEmptyCentreCost() {
         DispatchCentre centre = new DispatchCentre("Cape Town Hub");
-        assertEquals(0.0, centre.calculateTotalCost(), 0.001);
+        assertEquals(0.0, centre.totalDeliveryRevenue(), 0.001);
     }
 }
