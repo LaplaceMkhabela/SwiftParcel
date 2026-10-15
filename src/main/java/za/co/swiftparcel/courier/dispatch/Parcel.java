@@ -56,6 +56,11 @@ public abstract class Parcel {
         this.delivered = true;
     }
 
+    @Override
+    public String toString() {
+        return "Parcel %s from %s".formatted(trackingNumber, senderName);
+    }
+
     public abstract double calculateCost();
 
     public abstract String getType();
