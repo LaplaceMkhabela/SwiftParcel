@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DispatchCentre {
-    private final String name;
+    private final String centreName;
     private final List<Parcel> parcels;
 
-    public DispatchCentre(String name) {
-        this.name = name;
+    public DispatchCentre(String centreName) {
+        this.centreName = centreName;
         this.parcels = new ArrayList<>();
     }
 
     public String getName() {
-        return name;
+        return centreName;
     }
 
     public void dispatch(Parcel parcel) {
