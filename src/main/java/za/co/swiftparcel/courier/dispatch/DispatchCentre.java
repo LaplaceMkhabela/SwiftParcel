@@ -58,8 +58,4 @@ public class DispatchCentre {
                 .mapToDouble(Parcel::deliveryFee)
                 .sum();
     }
-
-    public int getParcelCount() {
-        return parcels.size();
-    }
 }

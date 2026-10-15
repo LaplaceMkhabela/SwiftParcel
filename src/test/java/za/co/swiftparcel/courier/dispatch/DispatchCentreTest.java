@@ -18,7 +18,7 @@ class DispatchCentreTest {
         DispatchCentre centre = new DispatchCentre("Cape Town Hub");
         Parcel parcel = new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5);
         centre.addParcel(parcel);
-        assertEquals(1, centre.getParcelCount());
+        assertEquals(1, centre.getParcels().size());
     }
 
     @Test
