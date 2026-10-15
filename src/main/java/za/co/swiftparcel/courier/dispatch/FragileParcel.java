@@ -6,15 +6,16 @@ public class FragileParcel extends Parcel implements Insurable {
     private static final int DELIVERY_DAYS = 3;
     private static final double INSURANCE_RATE = 0.02;
 
-    private double declaredValue;
+    private final double declaredValue;
+    private final String handlingNotes;
 
-    public FragileParcel(String trackingNumber, String senderName, String recipientAddress, double weightKg) {
-        this(trackingNumber, senderName, recipientAddress, weightKg, 0.0);
-    }
-
-    public FragileParcel(String trackingNumber, String senderName, String recipientAddress, double weightKg, double declaredValue) {
+    public FragileParcel(String trackingNumber, String senderName, String recipientAddress, double weightKg, double declaredValue, String handlingNotes) {
         super(trackingNumber, senderName, recipientAddress, weightKg);
+        if (declaredValue < 0) {
+            throw new IllegalArgumentException("Declared value must not be negative");
+        }
         this.declaredValue = declaredValue;
+        this.handlingNotes = handlingNotes;
     }
 
     @Override
@@ -37,8 +38,8 @@ public class FragileParcel extends Parcel implements Insurable {
         return declaredValue;
     }
 
-    public void setDeclaredValue(double declaredValue) {
-        this.declaredValue = declaredValue;
+    public String getHandlingNotes() {
+        return handlingNotes;
     }
 
     @Override
