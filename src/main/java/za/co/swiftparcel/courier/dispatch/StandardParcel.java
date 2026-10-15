@@ -14,6 +14,11 @@ public class StandardParcel extends Parcel {
     }
 
     @Override
+    public int deliveryDays() {
+        return 5;
+    }
+
+    @Override
     public String getType() {
         return "STANDARD";
     }

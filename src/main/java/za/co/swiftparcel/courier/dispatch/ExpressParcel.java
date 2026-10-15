@@ -14,6 +14,11 @@ public class ExpressParcel extends Parcel {
     }
 
     @Override
+    public int deliveryDays() {
+        return 1;
+    }
+
+    @Override
     public String getType() {
         return "EXPRESS";
     }

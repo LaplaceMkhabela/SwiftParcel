@@ -63,5 +63,7 @@ public abstract class Parcel {
 
     public abstract double deliveryFee();
 
+    public abstract int deliveryDays();
+
     public abstract String getType();
 }

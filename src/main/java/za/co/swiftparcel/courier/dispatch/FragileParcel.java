@@ -22,6 +22,11 @@ public class FragileParcel extends Parcel implements Insurable {
     }
 
     @Override
+    public int deliveryDays() {
+        return 3;
+    }
+
+    @Override
     public String getType() {
         return "FRAGILE";
     }
