@@ -26,7 +26,7 @@ public class DispatchCentre {
 
     public double calculateTotalCost() {
         return parcels.stream()
-                .mapToDouble(Parcel::calculateCost)
+                .mapToDouble(Parcel::deliveryFee)
                 .sum();
     }
 

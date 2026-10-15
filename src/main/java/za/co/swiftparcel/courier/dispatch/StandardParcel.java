@@ -9,7 +9,7 @@ public class StandardParcel extends Parcel {
     }
 
     @Override
-    public double calculateCost() {
+    public double deliveryFee() {
         return BASE_RATE + (getWeightKg() * WEIGHT_RATE);
     }
 

@@ -17,7 +17,7 @@ public class FragileParcel extends Parcel implements Insurable {
     }
 
     @Override
-    public double calculateCost() {
+    public double deliveryFee() {
         return BASE_RATE + (getWeightKg() * WEIGHT_RATE);
     }
 

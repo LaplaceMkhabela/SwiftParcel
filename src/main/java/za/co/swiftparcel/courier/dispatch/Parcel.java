@@ -61,7 +61,7 @@ public abstract class Parcel {
         return "Parcel %s from %s".formatted(trackingNumber, senderName);
     }
 
-    public abstract double calculateCost();
+    public abstract double deliveryFee();
 
     public abstract String getType();
 }
