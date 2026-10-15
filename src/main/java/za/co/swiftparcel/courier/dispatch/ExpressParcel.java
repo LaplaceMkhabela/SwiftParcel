@@ -40,4 +40,9 @@ public class ExpressParcel extends Parcel implements Insurable {
     public double insurancePremium() {
         return declaredValue * INSURANCE_RATE;
     }
+
+    @Override
+    public String toString() {
+        return "Express " + super.toString();
+    }
 }

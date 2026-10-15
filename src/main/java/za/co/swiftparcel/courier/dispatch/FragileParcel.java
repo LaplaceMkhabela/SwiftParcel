@@ -46,4 +46,9 @@ public class FragileParcel extends Parcel implements Insurable {
     public double insurancePremium() {
         return declaredValue * INSURANCE_RATE;
     }
+
+    @Override
+    public String toString() {
+        return "Fragile " + super.toString() + " - " + handlingNotes;
+    }
 }

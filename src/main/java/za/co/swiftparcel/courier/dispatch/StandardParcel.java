@@ -23,4 +23,9 @@ public class StandardParcel extends Parcel {
     public String serviceLevel() {
         return "Standard";
     }
+
+    @Override
+    public String toString() {
+        return "Standard " + super.toString();
+    }
 }
