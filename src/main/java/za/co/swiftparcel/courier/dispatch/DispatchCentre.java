@@ -12,7 +12,7 @@ public class DispatchCentre {
         this.parcels = new ArrayList<>();
     }
 
-    public String getName() {
+    public String getCentreName() {
         return centreName;
     }
 

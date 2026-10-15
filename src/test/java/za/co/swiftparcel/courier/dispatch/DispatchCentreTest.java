@@ -8,7 +8,7 @@ class DispatchCentreTest {
     @Test
     void testGetName() {
         DispatchCentre centre = new DispatchCentre("Cape Town Hub");
-        assertEquals("Cape Town Hub", centre.getName());
+        assertEquals("Cape Town Hub", centre.getCentreName());
     }
 
     @Test
