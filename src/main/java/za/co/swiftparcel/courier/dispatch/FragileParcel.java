@@ -27,7 +27,7 @@ public class FragileParcel extends Parcel implements Insurable {
     }
 
     @Override
-    public String getType() {
+    public String serviceLevel() {
         return "FRAGILE";
     }
 

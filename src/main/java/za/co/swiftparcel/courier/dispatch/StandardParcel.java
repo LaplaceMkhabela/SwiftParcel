@@ -19,7 +19,7 @@ public class StandardParcel extends Parcel {
     }
 
     @Override
-    public String getType() {
+    public String serviceLevel() {
         return "STANDARD";
     }
 }

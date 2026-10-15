@@ -65,5 +65,5 @@ public abstract class Parcel {
 
     public abstract int deliveryDays();
 
-    public abstract String getType();
+    public abstract String serviceLevel();
 }

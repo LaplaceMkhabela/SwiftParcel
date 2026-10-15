@@ -8,19 +8,19 @@ class ParcelTypesTest {
     @Test
     void testStandardParcelType() {
         Parcel parcel = new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5);
-        assertEquals("STANDARD", parcel.getType());
+        assertEquals("STANDARD", parcel.serviceLevel());
     }
 
     @Test
     void testExpressParcelType() {
         Parcel parcel = new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5);
-        assertEquals("EXPRESS", parcel.getType());
+        assertEquals("EXPRESS", parcel.serviceLevel());
     }
 
     @Test
     void testFragileParcelType() {
         Parcel parcel = new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5);
-        assertEquals("FRAGILE", parcel.getType());
+        assertEquals("FRAGILE", parcel.serviceLevel());
     }
 
     @Test

@@ -19,7 +19,7 @@ public class ExpressParcel extends Parcel {
     }
 
     @Override
-    public String getType() {
+    public String serviceLevel() {
         return "EXPRESS";
     }
 }
