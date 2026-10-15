@@ -5,6 +5,7 @@ import za.co.swiftparcel.courier.model.Consignment;
 import za.co.swiftparcel.courier.model.DeliveryAttempt;
 import za.co.swiftparcel.courier.model.Driver;
 import za.co.swiftparcel.courier.model.ServiceLevel;
+import za.co.swiftparcel.courier.repository.ConsignmentRepository;
 import za.co.swiftparcel.courier.service.DeliveryRulesService;
 
 import java.io.File;
@@ -31,6 +32,15 @@ public class Main {
         new File(DATABASE_FILE).delete();
         try (Connection connection = Database.connect(DATABASE_FILE)) {
             DatabaseSchema.createSchema(connection);
+
+            ConsignmentRepository repository = new ConsignmentRepository(connection);
+            repository.save(consignment);
+            for (DeliveryAttempt attempt : consignment.getAttempts()) {
+                repository.recordAttempt(consignment.getTrackingNo(), attempt);
+            }
+
+            Consignment reloaded = repository.findByTrackingNo(consignment.getTrackingNo()).orElseThrow();
+            System.out.println("Loaded from database: " + reloaded + ", delivered=" + reloaded.isDelivered());
             System.out.println("Database ready at " + DATABASE_FILE);
         }
     }
