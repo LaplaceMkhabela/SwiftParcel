@@ -57,6 +57,21 @@ class DispatchCentreTest {
     }
 
     @Test
+    void testTotalInsurancePremiums() {
+        DispatchCentre centre = new DispatchCentre("Cape Town Hub");
+        centre.addParcel(new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5));
+        centre.addParcel(new ExpressParcel("TRK002", "Cape Town", "Johannesburg", 2.5, 500.0));
+        centre.addParcel(new FragileParcel("TRK003", "Cape Town", "Johannesburg", 2.5, 1000.0, "Handle with care"));
+        assertEquals(30.0, centre.totalInsurancePremiums(), 0.001);
+    }
+
+    @Test
+    void testTotalInsurancePremiumsEmpty() {
+        DispatchCentre centre = new DispatchCentre("Cape Town Hub");
+        assertEquals(0.0, centre.totalInsurancePremiums(), 0.001);
+    }
+
+    @Test
     void testCalculateTotalCost() {
         DispatchCentre centre = new DispatchCentre("Cape Town Hub");
         centre.addParcel(new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5));

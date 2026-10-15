@@ -47,6 +47,12 @@ public class DispatchCentre {
         return insurable;
     }
 
+    public double totalInsurancePremiums() {
+        return insurableParcels().stream()
+                .mapToDouble(Insurable::insurancePremium)
+                .sum();
+    }
+
     public double totalDeliveryRevenue() {
         return parcels.stream()
                 .mapToDouble(Parcel::deliveryFee)
