@@ -1,6 +1,7 @@
 package za.co.swiftparcel.courier.dispatch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DispatchCentre {
@@ -26,7 +27,7 @@ public class DispatchCentre {
     }
 
     public List<Parcel> getParcels() {
-        return List.copyOf(parcels);
+        return Collections.unmodifiableList(parcels);
     }
 
     public Parcel findParcel(String trackingNumber) {
