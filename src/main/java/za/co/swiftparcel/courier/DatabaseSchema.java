@@ -21,11 +21,16 @@ public class DatabaseSchema {
                     """);
             statement.execute("""
                     CREATE TABLE parcels (
-                        id            INTEGER PRIMARY KEY,
-                        tracking_no   TEXT NOT NULL UNIQUE,
-                        weight_kg     REAL NOT NULL,
-                        service_level TEXT NOT NULL,
-                        customer_id   INTEGER NOT NULL,
+                        id               INTEGER PRIMARY KEY,
+                        tracking_no      TEXT NOT NULL UNIQUE,
+                        weight_kg        REAL NOT NULL,
+                        service_level    TEXT NOT NULL,
+                        zone             TEXT NOT NULL,
+                        fragile          INTEGER NOT NULL DEFAULT 0,
+                        cash_on_delivery INTEGER NOT NULL DEFAULT 0,
+                        address_verified INTEGER NOT NULL DEFAULT 1,
+                        on_hold          INTEGER NOT NULL DEFAULT 0,
+                        customer_id      INTEGER,
                         FOREIGN KEY (customer_id) REFERENCES customers (id)
                     )
                     """);
