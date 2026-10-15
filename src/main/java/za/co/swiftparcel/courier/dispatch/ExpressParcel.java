@@ -1,8 +1,8 @@
 package za.co.swiftparcel.courier.dispatch;
 
 public class ExpressParcel extends Parcel {
-    private static final double BASE_RATE = 15.0;
-    private static final double WEIGHT_RATE = 5.0;
+    private static final double BASE_FEE = 15.0;
+    private static final double FEE_PER_KG = 5.0;
 
     public ExpressParcel(String trackingNumber, String senderName, String recipientAddress, double weightKg) {
         super(trackingNumber, senderName, recipientAddress, weightKg);
@@ -10,7 +10,7 @@ public class ExpressParcel extends Parcel {
 
     @Override
     public double deliveryFee() {
-        return BASE_RATE + (getWeightKg() * WEIGHT_RATE);
+        return BASE_FEE + (getWeightKg() * FEE_PER_KG);
     }
 
     @Override

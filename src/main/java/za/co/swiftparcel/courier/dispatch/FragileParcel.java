@@ -1,9 +1,9 @@
 package za.co.swiftparcel.courier.dispatch;
 
 public class FragileParcel extends Parcel implements Insurable {
-    private static final double BASE_RATE = 10.0;
-    private static final double WEIGHT_RATE = 4.0;
-    private static final double PREMIUM_RATE = 0.02;
+    private static final double BASE_FEE = 10.0;
+    private static final double FEE_PER_KG = 4.0;
+    private static final double INSURANCE_RATE = 0.02;
 
     private double declaredValue;
 
@@ -18,7 +18,7 @@ public class FragileParcel extends Parcel implements Insurable {
 
     @Override
     public double deliveryFee() {
-        return BASE_RATE + (getWeightKg() * WEIGHT_RATE);
+        return BASE_FEE + (getWeightKg() * FEE_PER_KG);
     }
 
     @Override
@@ -42,6 +42,6 @@ public class FragileParcel extends Parcel implements Insurable {
 
     @Override
     public double insurancePremium() {
-        return declaredValue * PREMIUM_RATE;
+        return declaredValue * INSURANCE_RATE;
     }
 }
