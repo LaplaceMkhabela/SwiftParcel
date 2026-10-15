@@ -28,6 +28,15 @@ class DispatchCentreTest {
     }
 
     @Test
+    void testFindParcelReturnsMatchOrNull() {
+        DispatchCentre centre = new DispatchCentre("Cape Town Hub");
+        Parcel parcel = new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5);
+        centre.addParcel(parcel);
+        assertSame(parcel, centre.findParcel("TRK001"));
+        assertNull(centre.findParcel("TRK999"));
+    }
+
+    @Test
     void testGetParcelsReturnsImmutableList() {
         DispatchCentre centre = new DispatchCentre("Cape Town Hub");
         Parcel parcel = new StandardParcel("TRK001", "Cape Town", "Johannesburg", 2.5);

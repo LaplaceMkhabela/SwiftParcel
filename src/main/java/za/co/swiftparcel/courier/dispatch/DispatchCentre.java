@@ -29,6 +29,13 @@ public class DispatchCentre {
         return List.copyOf(parcels);
     }
 
+    public Parcel findParcel(String trackingNumber) {
+        return parcels.stream()
+                .filter(parcel -> parcel.getTrackingNumber().equals(trackingNumber))
+                .findFirst()
+                .orElse(null);
+    }
+
     public double calculateTotalCost() {
         return parcels.stream()
                 .mapToDouble(Parcel::deliveryFee)
