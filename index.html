@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SwiftParcel — Guided Demo</title>
+<meta name="description" content="Watch SwiftParcel compile, test and run itself — automated or guided through a simulated terminal." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>" />
+<style>
+  :root{
+    --bg:#080b10;
+    --panel:#0d1218;
+    --panel-2:#111922;
+    --line:#1d2833;
+    --line-soft:#16202a;
+    --txt:#dbe6f0;
+    --txt-dim:#8a9aab;
+    --muted:#5d6d7e;
+    --accent:#35e0a1;
+    --accent-2:#5ab0ff;
+    --warn:#e8c26a;
+    --err:#ff6b6b;
+    --term:#070a0e;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 500px at 15% -10%,rgba(53,224,161,.10),transparent 60%),
+      radial-gradient(800px 500px at 95% 0%,rgba(90,176,255,.10),transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    font-family:var(--sans);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  [hidden]{display:none!important}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  code{font-family:var(--mono)}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    padding:12px clamp(16px,4vw,40px);
+    background:rgba(8,11,16,.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .logo{
+    width:40px;height:40px;border-radius:11px;flex:none;
+    display:grid;place-items:center;
+    font-weight:800;font-size:14px;letter-spacing:.5px;color:#04120c;
+    background:linear-gradient(145deg,var(--accent),#1fb787);
+    box-shadow:0 6px 18px rgba(53,224,161,.28);
+  }
+  .brand h1{font-size:16px;margin:0;letter-spacing:.2px}
+  .brand p{margin:2px 0 0;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+  .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .segmented{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}
+  .seg{
+    padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--txt-dim);
+    transition:background .18s,color .18s;
+  }
+  .seg:hover{color:var(--txt)}
+  .seg.active{background:var(--accent);color:#04120c}
+  .ghost{
+    padding:8px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+    font-size:13px;color:var(--txt-dim);transition:.18s;
+  }
+  .ghost:hover{color:var(--txt);border-color:#2b3a49}
+
+  /* ---------- stage ---------- */
+  .stage{
+    max-width:1180px;margin:0 auto;
+    padding:22px clamp(14px,4vw,40px) 60px;
+    display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start;
+  }
+  .progress{
+    grid-column:1/-1;list-style:none;display:flex;gap:8px;margin:0 0 4px;padding:0;flex-wrap:wrap;
+  }
+  .progress li{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;color:var(--muted);font-family:var(--mono);
+    padding:7px 12px;border:1px solid var(--line-soft);border-radius:999px;background:var(--panel);
+    transition:.25s;
+  }
+  .progress li .num{
+    width:19px;height:19px;border-radius:50%;display:grid;place-items:center;flex:none;
+    background:#182230;color:var(--txt-dim);font-size:11px;font-weight:700;
+  }
+  .progress li.active{color:var(--accent-2);border-color:rgba(90,176,255,.45);box-shadow:0 0 0 3px rgba(90,176,255,.08)}
+  .progress li.active .num{background:var(--accent-2);color:#04121f}
+  .progress li.done{color:var(--accent);border-color:rgba(53,224,161,.4)}
+  .progress li.done .num{background:var(--accent);color:#04120c}
+
+  /* ---------- terminal ---------- */
+  .terminal{
+    position:relative;border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--term);overflow:hidden;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.02) inset;
+    display:flex;flex-direction:column;min-height:480px;
+  }
+  .titlebar{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 14px;background:linear-gradient(#161e28,#111820);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .dots{display:flex;gap:6px;flex:none}
+  .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .dots i:nth-child(1){background:#ff5f57}
+  .dots i:nth-child(2){background:#febc2e}
+  .dots i:nth-child(3){background:#28c840}
+  .ttitle{flex:1;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tmode{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--accent);border:1px solid rgba(53,224,161,.35);border-radius:999px;padding:3px 9px;flex:none;
+  }
+  .screen{
+    flex:1;padding:16px 16px 8px;overflow-y:auto;
+    font-family:var(--mono);font-size:13px;line-height:1.65;
+    scrollbar-width:thin;scrollbar-color:#233040 transparent;
+    word-break:break-word;
+  }
+  .screen::-webkit-scrollbar{width:9px}
+  .screen::-webkit-scrollbar-thumb{background:#233040;border-radius:9px}
+  .line{white-space:pre-wrap;animation:pop .16s ease-out}
+  @keyframes pop{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  .l-dim{color:var(--muted)}
+  .l-info{color:#9fb0c0}
+  .l-out{color:#c9d6e2}
+  .l-ok{color:var(--accent)}
+  .l-key{color:var(--accent-2)}
+  .l-warn{color:var(--warn)}
+  .l-err{color:var(--err)}
+  .echo{margin-top:6px}
+  .echo .ps1{color:var(--accent);font-weight:700}
+  .echo .pwd{color:var(--accent-2)}
+  .cursor{display:inline-block;width:8px;height:15px;background:var(--accent);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  .prompt{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 16px 14px;font-family:var(--mono);font-size:13px;
+    border-top:1px solid var(--line-soft);background:rgba(255,255,255,.012);
+  }
+  .prompt .ps1{color:var(--accent);font-weight:700}
+  .prompt .pwd{color:var(--accent-2)}
+  .prompt input{
+    flex:1;background:none;border:0;outline:0;color:var(--txt);
+    font-family:var(--mono);font-size:13px;caret-color:var(--accent);min-width:0;
+  }
+  .prompt input:disabled{opacity:.45}
+
+  /* ---------- begin overlay ---------- */
+  .overlay{
+    position:absolute;inset:44px 0 0;display:grid;place-items:center;
+    background:rgba(6,9,13,.88);backdrop-filter:blur(3px);z-index:5;padding:24px;text-align:center;
+    animation:fade .2s ease-out;
+  }
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .overlay h2{margin:0 0 8px;font-size:21px}
+  .overlay p{margin:0 auto 20px;max-width:400px;color:var(--txt-dim);font-size:13.5px;line-height:1.6}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:12px 24px;border-radius:11px;font-weight:700;font-size:14px;
+    background:linear-gradient(145deg,var(--accent),#1fb787);color:#04120c;
+    box-shadow:0 10px 26px -8px rgba(53,224,161,.55);transition:transform .15s,box-shadow .15s;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px -8px rgba(53,224,161,.7)}
+  .btn:active{transform:translateY(0)}
+
+  /* ---------- guide card ---------- */
+  .guide{
+    position:sticky;top:78px;
+    border:1px solid var(--line);border-radius:var(--radius);
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    padding:16px;box-shadow:0 24px 60px -28px rgba(0,0,0,.9);
+    animation:guideIn .28s cubic-bezier(.2,.9,.3,1.2);
+    overflow:hidden;
+  }
+  @keyframes guideIn{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:none}}
+  .guide.shake{animation:shake .38s}
+  @keyframes shake{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  .guideHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .badge{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;
+    color:var(--accent);background:rgba(53,224,161,.12);
+    border:1px solid rgba(53,224,161,.3);border-radius:999px;padding:3px 9px;
+  }
+  .badge.blue{color:var(--accent-2);background:rgba(90,176,255,.12);border-color:rgba(90,176,255,.3)}
+  .badge.gold{color:var(--warn);background:rgba(232,194,106,.12);border-color:rgba(232,194,106,.32)}
+  .x{color:var(--muted);font-size:14px;padding:2px 6px;border-radius:6px;transition:.15s}
+  .x:hover{color:var(--txt);background:rgba(255,255,255,.06)}
+  .guide h3{margin:0 0 8px;font-size:15.5px;line-height:1.35}
+  .guide p{margin:0 0 12px;font-size:13px;color:var(--txt-dim);line-height:1.6}
+  .guide ul{margin:0 0 12px;padding-left:16px;font-size:12.5px;color:var(--txt-dim);line-height:1.75}
+  .guide ul li::marker{color:var(--accent)}
+  .cmdrow{
+    display:flex;align-items:center;gap:8px;margin-bottom:12px;
+    background:#060a0e;border:1px solid var(--line-soft);border-radius:9px;padding:9px 10px;
+  }
+  .cmdrow code{flex:1;font-size:11.5px;color:var(--accent-2);word-break:break-all;min-width:0}
+  .cmdrow button{
+    flex:none;font-family:var(--mono);font-size:10.5px;font-weight:700;
+    color:var(--accent);border:1px solid rgba(53,224,161,.35);border-radius:7px;padding:5px 9px;transition:.15s;
+  }
+  .cmdrow button:hover{background:rgba(53,224,161,.12)}
+  .cmdrow button:disabled{opacity:.35;cursor:not-allowed}
+  .hint{
+    font-size:12px;color:var(--warn);background:rgba(232,194,106,.08);
+    border-left:2px solid var(--warn);border-radius:0 7px 7px 0;padding:8px 10px;margin-bottom:12px;
+  }
+  .guideActions{display:flex;gap:8px;flex-wrap:wrap}
+  .guideActions .primary{
+    flex:1;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700;
+    background:linear-gradient(145deg,var(--accent),#1fb787);color:#04120c;
+  }
+  .guideActions .secondary{
+    padding:10px 14px;border-radius:9px;font-size:13px;font-weight:600;
+    border:1px solid var(--line);color:var(--txt-dim);
+  }
+  .guideActions .secondary:hover{color:var(--txt)}
+  .guideActions button:disabled{opacity:.45;cursor:not-allowed}
+  .bar{margin:14px -16px -16px;height:3px;background:rgba(255,255,255,.05)}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-2),var(--accent))}
+  .note{
+    grid-column:1/-1;margin:2px 0 0;font-size:12px;color:var(--muted);text-align:center;
+  }
+
+  @media (max-width:980px){
+    .stage{grid-template-columns:minmax(0,1fr)}
+    .guide{position:static;order:-1}
+    .terminal{min-height:420px}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">SP</div>
+    <div>
+      <h1>SwiftParcel</h1>
+      <p>courier &amp; dispatch demo · java 21 · maven · sqlite</p>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="segmented" role="group" aria-label="Demo mode">
+      <button class="seg active" id="modeAutoBtn">Automated</button>
+      <button class="seg" id="modeInterBtn">Interactive</button>
+    </div>
+    <button class="ghost" id="resetBtn">↺ Reset</button>
+  </div>
+</header>
+
+<div class="stage">
+  <ol class="progress" id="progress">
+    <li data-step="0"><span class="num">1</span> Compile</li>
+    <li data-step="1"><span class="num">2</span> Test</li>
+    <li data-step="2"><span class="num">3</span> Run demo</li>
+    <li data-step="3"><span class="num">✓</span> Summary</li>
+  </ol>
+
+  <div class="terminal" id="terminal">
+    <div class="titlebar">
+      <span class="dots"><i></i><i></i><i></i></span>
+      <span class="ttitle">swiftparcel — bash — 100×30</span>
+      <span class="tmode" id="modeTag">automated</span>
+    </div>
+    <div class="screen" id="screen" aria-live="polite"></div>
+    <div class="prompt" id="prompt" hidden>
+      <span class="ps1">➜</span><span class="pwd">~/SwiftParcel</span>
+      <input id="cmdInput" autocomplete="off" autocapitalize="off" spellcheck="false"
+             aria-label="Command input" placeholder="type the command from the guide…" />
+    </div>
+    <div class="overlay" id="overlay">
+      <div>
+        <h2 id="overlayTitle">Automated run</h2>
+        <p id="overlayText">Sit back and press <strong>Begin</strong>. SwiftParcel will compile, run its test suite and launch the program — a pop-up explains every command as it executes.</p>
+        <button class="btn" id="beginBtn">▶ Begin</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="guide" id="guide" hidden>
+    <div class="guideHead">
+      <span class="badge" id="guideBadge">Step 1</span>
+      <button class="x" id="guideClose" title="Dismiss" hidden>✕</button>
+    </div>
+    <h3 id="guideTitle"></h3>
+    <p id="guideBody"></p>
+    <ul id="guideList" hidden></ul>
+    <div class="cmdrow" id="guideCmdRow" hidden>
+      <code id="guideCmd"></code>
+      <button id="guideInsert">Insert ⏎</button>
+    </div>
+    <div class="hint" id="guideHint" hidden></div>
+    <div class="guideActions">
+      <button class="primary" id="guidePrimary">Got it</button>
+      <button class="secondary" id="guideSecondary" hidden>Run it for me</button>
+    </div>
+    <div class="bar" id="guideBarWrap" hidden><i id="guideBar"></i></div>
+  </aside>
+
+  <p class="note">Pure browser simulation — no commands run on your machine. Output mirrors the real <code>za.co.swiftparcel.courier.Main</code> demo.</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var screen = $("screen"), guide = $("guide"), prompt = $("prompt"),
+      input = $("cmdInput"), overlay = $("overlay"), progress = $("progress");
+
+  var AUTO_MS = 4200;
+
+  /* ------------------------------------------------------------------ *
+   *  The scripted program run (mirrors the real SwiftParcel demo)
+   * ------------------------------------------------------------------ */
+  var STEPS = [
+    {
+      cmd: "./mvnw compile",
+      badge: "Step 1 of 3",
+      title: "Compile the project",
+      body: "Build every class under <code>src/main/java</code> with the bundled Maven Wrapper. Type the command into the terminal prompt and press Enter.",
+      autoTitle: "Compiling the sources",
+      autoBody: "<code>./mvnw compile</code> — Maven resolves dependencies and compiles all 16 Java files into <code>target/classes</code>.",
+      hint: "It starts with <code>./mvnw</code> — try: ./mvnw compile",
+      lines: [
+        ["[INFO] Scanning for projects...", "l-dim"],
+        ["[INFO] Building SwiftParcel 1.0.0", "l-info"],
+        ["[INFO] --------------------------------[ jar ]---------------------------------", "l-dim"],
+        ["[INFO] --- resources:3.3.1:resources (default-resources) @ swiftparcel ---", "l-info"],
+        ["[INFO] skip non-existing resource directory src/main/resources", "l-dim"],
+        ["[INFO] --- compiler:3.13.0:compile (default-compile) @ swiftparcel ---", "l-info"],
+        ["[INFO] Compiling 16 source files with javac to target/classes", "l-out"],
+        ["[INFO] BUILD SUCCESS", "l-ok"],
+        ["[INFO] Total time:  1.842 s", "l-dim"]
+      ]
+    },
+    {
+      cmd: "./mvnw test",
+      badge: "Step 2 of 3",
+      title: "Run the test suite",
+      body: "JUnit checks the parcel hierarchy, the dispatch centre, insurance and the SQLite repository. Type the command and press Enter.",
+      autoTitle: "Running the tests",
+      autoBody: "<code>./mvnw test</code> — Surefire executes 31 tests across 5 classes (dispatch, insurance, repository).",
+      hint: "Try: ./mvnw test",
+      lines: [
+        ["[INFO] --- surefire:3.2.5:test (default-test) @ swiftparcel ---", "l-info"],
+        ["[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider", "l-dim"],
+        ["[INFO] -------------------------------------------------------", "l-dim"],
+        ["[INFO]  T E S T S", "l-out"],
+        ["[INFO] -------------------------------------------------------", "l-dim"],
+        ["[INFO] Running za.co.swiftparcel.courier.repository.ConsignmentRepositoryTest", "l-info"],
+        ["[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in ConsignmentRepositoryTest", "l-out"],
+        ["[INFO] Running za.co.swiftparcel.courier.dispatch.ParcelTypesTest", "l-info"],
+        ["[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0 -- in ParcelTypesTest", "l-out"],
+        ["[INFO] Running za.co.swiftparcel.courier.dispatch.ParcelTest", "l-info"],
+        ["[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0 -- in ParcelTest", "l-out"],
+        ["[INFO] Running za.co.swiftparcel.courier.dispatch.DispatchCentreTest", "l-info"],
+        ["[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 -- in DispatchCentreTest", "l-out"],
+        ["[INFO] Running za.co.swiftparcel.courier.dispatch.InsurableTest", "l-info"],
+        ["[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in InsurableTest", "l-out"],
+        ["[INFO] Results:", "l-dim"],
+        ["[INFO] Tests run: 31, Failures: 0, Errors: 0, Skipped: 0", "l-ok"],
+        ["[INFO] BUILD SUCCESS", "l-ok"],
+        ["[INFO] Total time:  10.101 s", "l-dim"]
+      ]
+    },
+    {
+      cmd: "./mvnw exec:java -Dexec.mainClass=za.co.swiftparcel.courier.Main",
+      badge: "Step 3 of 3",
+      title: "Run the program",
+      body: "This launches <code>Main</code>: it checks whether consignment <code>SP-100245</code> can be loaded, decides the next delivery step, then persists everything to SQLite and reloads it. Long command — use <strong>Insert</strong> if you like, then press Enter.",
+      autoTitle: "Executing the entry point",
+      autoBody: "<code>Main</code> runs the dispatch rules, records a delivery attempt, creates the SQLite schema, saves the consignment and reads it back.",
+      hint: "Use the Insert button, or type: ./mvnw exec:java -Dexec.mainClass=za.co.swiftparcel.courier.Main",
+      lines: [
+        ["Can load SP-100245 (STANDARD, 12.5kg, zone JHB-NORTH) onto Thabo Mokoena (DRV-07, zone JHB-NORTH)? true", "l-key"],
+        ["Next step for SP-100245: SCHEDULE_REDELIVERY", "l-ok"],
+        ["Loaded from database: SP-100245 (STANDARD, 12.5kg, zone JHB-NORTH), delivered=false", "l-key"],
+        ["Database ready at courier.db", "l-ok"]
+      ]
+    }
+  ];
+
+  var SUMMARY = {
+    badge: "Run complete",
+    title: "What the program just did",
+    body: "The simulated run mirrors <code>za.co.swiftparcel.courier.Main</code>:",
+    bullets: [
+      "<code>canLoadOntoVehicle(...)</code> → <strong>true</strong> — driver is on shift, address verified, 12.5 kg fits the 800 kg vehicle, zones match.",
+      "A <code>NO_ONE_HOME</code> attempt was recorded, so <code>decideNextStep(...)</code> → <strong>SCHEDULE_REDELIVERY</strong> (the 3-attempt limit is not reached).",
+      "The consignment and its attempt were written to the SQLite tables <code>parcels</code> and <code>delivery_attempts</code> in <code>courier.db</code>.",
+      "The consignment was read back from the database — <code>delivered=false</code>."
+    ]
+  };
+
+  /* ------------------------------------------------------------------ *
+   *  State + helpers
+   * ------------------------------------------------------------------ */
+  var state = { mode: "auto", step: 0, running: false, token: 0, tries: 0 };
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function stale(token) { return token !== state.token; }
+
+  function throwIfStale(token) { if (stale(token)) { var e = new Error("stale"); e.stale = true; throw e; } }
+
+  function norm(s) { return s.trim().replace(/\s+/g, " "); }
+
+  function appendLine(text, cls, token) {
+    if (token !== undefined) throwIfStale(token);
+    var el = document.createElement("div");
+    el.className = "line " + (cls || "l-out");
+    el.textContent = text;
+    screen.appendChild(el);
+    screen.scrollTop = screen.scrollHeight;
+    return el;
+  }
+
+  function appendEcho(cmd, token) {
+    if (token !== undefined) throwIfStale(token);
+    var el = document.createElement("div");
+    el.className = "line echo";
+    el.innerHTML = '<span class="ps1">➜</span> <span class="pwd">~/SwiftParcel</span> ';
+    var span = document.createElement("span");
+    span.textContent = cmd;
+    el.appendChild(span);
+    var caret = document.createElement("span");
+    caret.className = "cursor";
+    el.appendChild(caret);
+    screen.appendChild(el);
+    screen.scrollTop = screen.scrollHeight;
+    return { line: el, cmdSpan: span, caret: caret };
+  }
+
+  function clearScreen() { screen.innerHTML = ""; }
+
+  function boot() {
+    appendLine("swiftparcel-demo v1.0 — simulated terminal", "l-dim");
+    appendLine("Nothing here touches your machine; output replays the real Java demo.", "l-dim");
+    appendLine("", "l-out");
+  }
+
+  async function typeCmd(cmd, token, speed) {
+    var e = appendEcho(cmd, token);
+    var text = "";
+    for (var i = 0; i < cmd.length; i++) {
+      text += cmd.charAt(i);
+      e.cmdSpan.textContent = text;
+      screen.scrollTop = screen.scrollHeight;
+      await sleep(speed || 26);
+      throwIfStale(token);
+    }
+    e.caret.remove();
+    await sleep(180);
+    throwIfStale(token);
+  }
+
+  async function stream(lines, token, base) {
+    base = base || 110;
+    for (var i = 0; i < lines.length; i++) {
+      appendLine(lines[i][0], lines[i][1], token);
+      await sleep(base + Math.random() * 170);
+      throwIfStale(token);
+    }
+    await sleep(320);
+    throwIfStale(token);
+  }
+
+  function setProgress(idx) {
+    Array.prototype.forEach.call(progress.children, function (li) {
+      var i = Number(li.getAttribute("data-step"));
+      li.classList.toggle("done", i < idx);
+      li.classList.toggle("active", i === idx);
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Guide card (the pop-up)
+   * ------------------------------------------------------------------ */
+  function hideGuide() { guide.hidden = true; guide.classList.remove("shake", "auto"); }
+
+  function renderGuide(cfg) {
+    guide.hidden = false;
+    guide.classList.remove("shake");
+    var badge = $("guideBadge");
+    badge.textContent = cfg.badge || "";
+    badge.className = "badge" + (cfg.badgeClass ? " " + cfg.badgeClass : "");
+    $("guideTitle").innerHTML = cfg.title || "";
+    $("guideBody").innerHTML = cfg.body || "";
+
+    var list = $("guideList");
+    if (cfg.bullets && cfg.bullets.length) {
+      list.innerHTML = "";
+      cfg.bullets.forEach(function (b) { var li = document.createElement("li"); li.innerHTML = b; list.appendChild(li); });
+      list.hidden = false;
+    } else { list.hidden = true; }
+
+    var row = $("guideCmdRow");
+    if (cfg.cmd) { $("guideCmd").textContent = cfg.cmd; row.hidden = false; }
+    else { row.hidden = true; }
+
+    var hint = $("guideHint");
+    if (cfg.hintText) { hint.innerHTML = cfg.hintText; hint.hidden = false; }
+    else { hint.hidden = true; }
+
+    $("guideClose").hidden = !cfg.closable;
+
+    var bar = $("guideBarWrap");
+    if (cfg.bar) { bar.hidden = false; } else { bar.hidden = true; }
+  }
+
+  function shakeGuide() {
+    guide.classList.remove("shake");
+    void guide.offsetWidth;
+    guide.classList.add("shake");
+  }
+
+  /* Auto pop-up: shows, then closes itself (or when "Next" is clicked). */
+  function autoPopup(cfg, token) {
+    return new Promise(function (resolve) {
+      renderGuide(cfg);
+      guide.classList.add("auto");
+      var barWrap = $("guideBarWrap"), bar = $("guideBar");
+      if (cfg.bar) {
+        barWrap.hidden = false;
+        bar.style.transition = "none";
+        bar.style.width = "0%";
+        requestAnimationFrame(function () {
+          bar.style.transition = "width " + AUTO_MS + "ms linear";
+          bar.style.width = "100%";
+        });
+      }
+      var done = false;
+      function finish() {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        $("guidePrimary").onclick = null;
+        hideGuide();
+        resolve();
+      }
+      var timer = setTimeout(finish, AUTO_MS);
+      $("guidePrimary").onclick = finish;
+    });
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Automated mode
+   * ------------------------------------------------------------------ */
+  async function autoStep(step, token) {
+    await autoPopup({
+      badge: "Step " + (step + 1) + " of " + STEPS.length,
+      title: STEPS[step].autoTitle,
+      body: STEPS[step].autoBody,
+      bar: true,
+      closable: true,
+      primary: "Next ▸"
+    }, token);
+
+    setProgress(step + 1);
+    await typeCmd(STEPS[step].cmd, token, 30);
+    await stream(STEPS[step].lines, token, step === 2 ? 420 : 120);
+  }
+
+  async function runAutomated() {
+    var token = ++state.token;
+    state.mode = "auto";
+    resetView();
+    overlay.hidden = true;
+    prompt.hidden = true;
+    boot();
+    try {
+      for (var i = 0; i < STEPS.length; i++) {
+        throwIfStale(token);
+        await autoStep(i, token);
+      }
+      setProgress(3);
+      await autoPopup({
+        badge: SUMMARY.badge, badgeClass: "gold",
+        title: SUMMARY.title, body: SUMMARY.body, bullets: SUMMARY.bullets,
+        bar: true, closable: true, primary: "▶ Run again"
+      }, token);
+      $("guidePrimary").onclick = function () { runAutomated(); };
+      appendLine("", "l-out");
+      appendLine("✓ demo finished — press Reset or switch to Interactive to explore again.", "l-ok");
+    } catch (e) { if (!e || !e.stale) throw e; }
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Interactive mode
+   * ------------------------------------------------------------------ */
+  function interactiveGuide(step) {
+    var s = STEPS[step];
+    renderGuide({
+      badge: s.badge,
+      title: s.title,
+      body: s.body,
+      cmd: s.cmd,
+      hintText: null,
+      closable: false
+    });
+    state.tries = 0;
+    var secondary = $("guideSecondary");
+    secondary.hidden = true;
+    secondary.onclick = null;
+    $("guideInsert").disabled = false;
+    $("guidePrimary").textContent = "⌨ Type it in the terminal";
+    $("guidePrimary").disabled = true;
+    $("guideInsert").onclick = function () {
+      input.value = s.cmd;
+      input.disabled = false;
+      input.focus();
+      input.setSelectionRange(s.cmd.length, s.cmd.length);
+    };
+    setProgress(step);
+  }
+
+  function interactiveSummary() {
+    renderGuide({
+      badge: SUMMARY.badge, badgeClass: "gold",
+      title: SUMMARY.title,
+      body: SUMMARY.body,
+      bullets: SUMMARY.bullets,
+      closable: false
+    });
+    var primary = $("guidePrimary");
+    primary.textContent = "↻ Start over";
+    primary.disabled = false;
+    primary.onclick = function () { startInteractive(); };
+    var secondary = $("guideSecondary");
+    secondary.hidden = true;
+    $("guideInsert").disabled = true;
+    setProgress(3);
+  }
+
+  function startInteractive() {
+    resetView();
+    state.mode = "inter"; state.step = 0; state.tries = 0;
+    overlay.hidden = true;
+    prompt.hidden = false;
+    boot();
+    appendLine("Guided mode: read the card, type the command it shows, press Enter.", "l-info");
+    appendLine("", "l-out");
+    interactiveGuide(0);
+    input.disabled = false;
+    input.value = "";
+    input.focus();
+  }
+
+  function wrongCommand(raw) {
+    var expected = STEPS[state.step];
+    var other = STEPS.filter(function (s) { return norm(s.cmd) === norm(raw); })[0];
+    if (other) {
+      appendLine("demo: that is a later step — finish the current one first.", "l-warn");
+    } else {
+      appendLine("demo: '" + raw + "' is not part of this guided run.", "l-err");
+      appendLine("demo: use the command shown on the guide card.", "l-dim");
+    }
+    state.tries++;
+    shakeGuide();
+    var hint = $("guideHint");
+    hint.innerHTML = expected.hint;
+    hint.hidden = false;
+    if (state.tries >= 2) {
+      var secondary = $("guideSecondary");
+      secondary.hidden = false;
+      secondary.textContent = "Run it for me";
+      secondary.onclick = function () { execute(++state.token, false); };
+    }
+  }
+
+  function handleEnter() {
+    if (state.running) return;
+    var raw = input.value.trim();
+    if (!raw) return;
+    input.value = "";
+    var expected = STEPS[state.step];
+    if (norm(raw) === norm(expected.cmd)) {
+      execute(++state.token, true);
+    } else {
+      wrongCommand(raw);
+    }
+  }
+
+  var runningToken = 0;
+  async function execute(token, typedByUser) {
+    state.running = true;
+    input.disabled = true;
+    $("guideInsert").disabled = true;
+    $("guidePrimary").disabled = true;
+    $("guideSecondary").disabled = true;
+    setProgress(state.step + 1);
+
+    if (typedByUser) {
+      var e = appendEcho("", token);
+      e.cmdSpan.textContent = STEPS[state.step].cmd;
+      e.caret.remove();
+    }
+    try {
+      if (!typedByUser) await typeCmd(STEPS[state.step].cmd, token, 12);
+      await stream(STEPS[state.step].lines, token, state.step === 2 ? 420 : 110);
+    } catch (e2) {
+      if (!e2 || !e2.stale) throw e2;
+      return;
+    }
+
+    state.running = false;
+    $("guideSecondary").disabled = false;
+    state.step++;
+    state.tries = 0;
+    if (state.step < STEPS.length) {
+      interactiveGuide(state.step);
+      input.disabled = false;
+      input.focus();
+    } else {
+      appendLine("", "l-out");
+      interactiveSummary();
+      appendLine("✓ guided run finished — nothing left to type.", "l-ok");
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  View / mode plumbing
+   * ------------------------------------------------------------------ */
+  function resetView() {
+    state.token++;
+    state.running = false;
+    clearScreen();
+    hideGuide();
+    $("guidePrimary").disabled = false;
+    $("guideSecondary").disabled = false;
+    $("guideSecondary").hidden = true;
+    $("guideHint").hidden = true;
+    $("guideBarWrap").hidden = true;
+    $("guideCmdRow").hidden = true;
+    $("guideList").hidden = true;
+    setProgress(-1);
+    state.step = 0;
+    state.tries = 0;
+  }
+
+  function reset() {
+    var mode = state.mode;
+    if (mode === "inter") startInteractive();
+    else showAutomatedIdle();
+  }
+
+  function showAutomatedIdle() {
+    resetView();
+    state.mode = "auto";
+    clearScreen();
+    hideGuide();
+    $("modeTag").textContent = "automated";
+    overlay.hidden = false;
+    prompt.hidden = true;
+    boot();
+  }
+
+  function switchMode(mode) {
+    state.token++;
+    state.running = false;
+    $("modeAutoBtn").classList.toggle("active", mode === "auto");
+    $("modeInterBtn").classList.toggle("active", mode === "inter");
+    $("modeTag").textContent = mode === "auto" ? "automated" : "interactive";
+    if (mode === "auto") { state.mode = "auto"; showAutomatedIdle(); }
+    else { state.mode = "inter"; startInteractive(); }
+  }
+
+  /* ------------------------------------------------------------------ *
+   *  Events
+   * ------------------------------------------------------------------ */
+  $("beginBtn").onclick = function () { runAutomated(); };
+  $("resetBtn").onclick = reset;
+  $("modeAutoBtn").onclick = function () { switchMode("auto"); };
+  $("modeInterBtn").onclick = function () { switchMode("inter"); };
+  $("guideClose").onclick = function () { hideGuide(); };
+  input.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); handleEnter(); } });
+  $("terminal").addEventListener("click", function () { if (state.mode === "inter" && !state.running && !input.disabled) input.focus(); });
+
+  showAutomatedIdle();
+})();
+</script>
+</body>
+</html>
