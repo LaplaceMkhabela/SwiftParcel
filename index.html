@@ -656,9 +656,9 @@
   }
 
   async function runAutomated() {
+    resetView();
     var token = ++state.token;
     state.mode = "auto";
-    resetView();
     overlay.hidden = true;
     prompt.hidden = true;
     boot();
