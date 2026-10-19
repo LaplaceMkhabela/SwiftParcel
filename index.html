@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SwiftParcel — Guided Demo</title>
-<meta name="description" content="Watch SwiftParcel compile, test and run itself — automated or guided through a simulated terminal." />
+<title>SwiftParcel — Main program simulation</title>
+<meta name="description" content="Step through za.co.swiftparcel.courier.Main — domain objects, dispatch rules and SQLite persistence — automated or guided." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>" />
 <style>
   :root{
@@ -41,7 +41,6 @@
   button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   code{font-family:var(--mono)}
 
-  /* ---------- top bar ---------- */
   .topbar{
     position:sticky;top:0;z-index:40;
     display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
@@ -74,7 +73,6 @@
   }
   .ghost:hover{color:var(--txt);border-color:#2b3a49}
 
-  /* ---------- stage ---------- */
   .stage{
     max-width:1180px;margin:0 auto;
     padding:22px clamp(14px,4vw,40px) 60px;
@@ -98,7 +96,6 @@
   .progress li.done{color:var(--accent);border-color:rgba(53,224,161,.4)}
   .progress li.done .num{background:var(--accent);color:#04120c}
 
-  /* ---------- terminal ---------- */
   .terminal{
     position:relative;border:1px solid var(--line);border-radius:var(--radius);
     background:var(--term);overflow:hidden;
@@ -156,15 +153,14 @@
   }
   .prompt input:disabled{opacity:.45}
 
-  /* ---------- begin overlay ---------- */
   .overlay{
     position:absolute;inset:44px 0 0;display:grid;place-items:center;
-    background:rgba(6,9,13,.88);backdrop-filter:blur(3px);z-index:5;padding:24px;text-align:center;
+    background:rgba(6,9,13,.9);backdrop-filter:blur(3px);z-index:5;padding:24px;text-align:center;
     animation:fade .2s ease-out;
   }
   @keyframes fade{from{opacity:0}to{opacity:1}}
   .overlay h2{margin:0 0 8px;font-size:21px}
-  .overlay p{margin:0 auto 20px;max-width:400px;color:var(--txt-dim);font-size:13.5px;line-height:1.6}
+  .overlay p{margin:0 auto 20px;max-width:430px;color:var(--txt-dim);font-size:13.5px;line-height:1.6}
   .btn{
     display:inline-flex;align-items:center;gap:8px;
     padding:12px 24px;border-radius:11px;font-weight:700;font-size:14px;
@@ -174,7 +170,6 @@
   .btn:hover{transform:translateY(-1px);box-shadow:0 14px 30px -8px rgba(53,224,161,.7)}
   .btn:active{transform:translateY(0)}
 
-  /* ---------- guide card ---------- */
   .guide{
     position:sticky;top:78px;
     border:1px solid var(--line);border-radius:var(--radius);
@@ -246,7 +241,7 @@
     <div class="logo">SP</div>
     <div>
       <h1>SwiftParcel</h1>
-      <p>courier &amp; dispatch demo · java 21 · maven · sqlite</p>
+      <p>za.co.swiftparcel.courier.Main · program simulation</p>
     </div>
   </div>
   <div class="controls">
@@ -260,28 +255,28 @@
 
 <div class="stage">
   <ol class="progress" id="progress">
-    <li data-step="0"><span class="num">1</span> Compile</li>
-    <li data-step="1"><span class="num">2</span> Test</li>
-    <li data-step="2"><span class="num">3</span> Run demo</li>
+    <li data-step="0"><span class="num">1</span> Build domain</li>
+    <li data-step="1"><span class="num">2</span> Apply rules</li>
+    <li data-step="2"><span class="num">3</span> Persist to SQLite</li>
     <li data-step="3"><span class="num">✓</span> Summary</li>
   </ol>
 
   <div class="terminal" id="terminal">
     <div class="titlebar">
       <span class="dots"><i></i><i></i><i></i></span>
-      <span class="ttitle">swiftparcel — bash — 100×30</span>
+      <span class="ttitle">swiftparcel — Main — simulated REPL</span>
       <span class="tmode" id="modeTag">automated</span>
     </div>
     <div class="screen" id="screen" aria-live="polite"></div>
     <div class="prompt" id="prompt" hidden>
-      <span class="ps1">➜</span><span class="pwd">~/SwiftParcel</span>
+      <span class="ps1">➜</span><span class="pwd">sp</span>
       <input id="cmdInput" autocomplete="off" autocapitalize="off" spellcheck="false"
-             aria-label="Command input" placeholder="type the command from the guide…" />
+             aria-label="Command input" placeholder="type the next program statement…" />
     </div>
     <div class="overlay" id="overlay">
       <div>
-        <h2 id="overlayTitle">Automated run</h2>
-        <p id="overlayText">Sit back and press <strong>Begin</strong>. SwiftParcel will compile, run its test suite and launch the program — a pop-up explains every command as it executes.</p>
+        <h2 id="overlayTitle">Automated program run</h2>
+        <p id="overlayText">Press <strong>Begin</strong> and SwiftParcel replays <code>main()</code> step by step: it constructs the driver and consignment, applies the dispatch rules, then writes everything to SQLite and reads it back. A pop-up explains each statement as it executes.</p>
         <button class="btn" id="beginBtn">▶ Begin</button>
       </div>
     </div>
@@ -307,7 +302,7 @@
     <div class="bar" id="guideBarWrap" hidden><i id="guideBar"></i></div>
   </aside>
 
-  <p class="note">Pure browser simulation — no commands run on your machine. Output mirrors the real <code>za.co.swiftparcel.courier.Main</code> demo.</p>
+  <p class="note">Pure browser simulation of <code>za.co.swiftparcel.courier.Main</code> — no commands run on your machine.</p>
 </div>
 
 <script>
@@ -318,73 +313,163 @@
   var screen = $("screen"), guide = $("guide"), prompt = $("prompt"),
       input = $("cmdInput"), overlay = $("overlay"), progress = $("progress");
 
-  var AUTO_MS = 4200;
+  var AUTO_MS = 3200;
 
   /* ------------------------------------------------------------------ *
-   *  The scripted program run (mirrors the real SwiftParcel demo)
+   *  Replay of za.co.swiftparcel.courier.Main, statement by statement.
+   *  stage: 0 = build domain, 1 = dispatch rules, 2 = persistence
    * ------------------------------------------------------------------ */
   var STEPS = [
     {
-      cmd: "./mvnw compile",
-      badge: "Step 1 of 3",
-      title: "Compile the project",
-      body: "Build every class under <code>src/main/java</code> with the bundled Maven Wrapper. Type the command into the terminal prompt and press Enter.",
-      autoTitle: "Compiling the sources",
-      autoBody: "<code>./mvnw compile</code> — Maven resolves dependencies and compiles all 16 Java files into <code>target/classes</code>.",
-      hint: "It starts with <code>./mvnw</code> — try: ./mvnw compile",
+      cmd: 'new Driver("DRV-07", "Thabo Mokoena", "JHB-NORTH", 800)',
+      badge: "Domain 1/2",
+      title: "Construct the driver",
+      body: "Main creates the driver who will attempt the delivery. The constructor puts the driver on shift by default.",
+      autoTitle: "Constructing the driver",
+      autoBody: "A <code>Driver</code> is built with ID <code>DRV-07</code>, zone <code>JHB-NORTH</code> and an 800 kg vehicle.",
+      hint: 'Start with: new Driver("DRV-07" …',
+      stage: 0,
       lines: [
-        ["[INFO] Scanning for projects...", "l-dim"],
-        ["[INFO] Building SwiftParcel 1.0.0", "l-info"],
-        ["[INFO] --------------------------------[ jar ]---------------------------------", "l-dim"],
-        ["[INFO] --- resources:3.3.1:resources (default-resources) @ swiftparcel ---", "l-info"],
-        ["[INFO] skip non-existing resource directory src/main/resources", "l-dim"],
-        ["[INFO] --- compiler:3.13.0:compile (default-compile) @ swiftparcel ---", "l-info"],
-        ["[INFO] Compiling 16 source files with javac to target/classes", "l-out"],
-        ["[INFO] BUILD SUCCESS", "l-ok"],
-        ["[INFO] Total time:  1.842 s", "l-dim"]
+        ["driver.vehicleCapacityKg = 800.0", "l-info"],
+        ["driver.currentLoadKg     = 0.0", "l-info"],
+        ["driver.onShift           = true   (set by constructor)", "l-info"],
+        ["driver → Thabo Mokoena (DRV-07, zone JHB-NORTH)", "l-ok"]
       ]
     },
     {
-      cmd: "./mvnw test",
-      badge: "Step 2 of 3",
-      title: "Run the test suite",
-      body: "JUnit checks the parcel hierarchy, the dispatch centre, insurance and the SQLite repository. Type the command and press Enter.",
-      autoTitle: "Running the tests",
-      autoBody: "<code>./mvnw test</code> — Surefire executes 31 tests across 5 classes (dispatch, insurance, repository).",
-      hint: "Try: ./mvnw test",
+      cmd: 'new Consignment("SP-100245", 12.5, STANDARD, "JHB-NORTH")',
+      badge: "Domain 2/2",
+      title: "Construct the consignment",
+      body: "The consignment to deliver: tracking number, weight, service level and zone. The constructor marks the address as verified.",
+      autoTitle: "Constructing the consignment",
+      autoBody: "A <code>Consignment</code> is built for <code>SP-100245</code>, 12.5 kg, <code>STANDARD</code> service, zone <code>JHB-NORTH</code>.",
+      hint: 'Start with: new Consignment("SP-100245" …',
+      stage: 0,
       lines: [
-        ["[INFO] --- surefire:3.2.5:test (default-test) @ swiftparcel ---", "l-info"],
-        ["[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider", "l-dim"],
-        ["[INFO] -------------------------------------------------------", "l-dim"],
-        ["[INFO]  T E S T S", "l-out"],
-        ["[INFO] -------------------------------------------------------", "l-dim"],
-        ["[INFO] Running za.co.swiftparcel.courier.repository.ConsignmentRepositoryTest", "l-info"],
-        ["[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in ConsignmentRepositoryTest", "l-out"],
-        ["[INFO] Running za.co.swiftparcel.courier.dispatch.ParcelTypesTest", "l-info"],
-        ["[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0 -- in ParcelTypesTest", "l-out"],
-        ["[INFO] Running za.co.swiftparcel.courier.dispatch.ParcelTest", "l-info"],
-        ["[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0 -- in ParcelTest", "l-out"],
-        ["[INFO] Running za.co.swiftparcel.courier.dispatch.DispatchCentreTest", "l-info"],
-        ["[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 -- in DispatchCentreTest", "l-out"],
-        ["[INFO] Running za.co.swiftparcel.courier.dispatch.InsurableTest", "l-info"],
-        ["[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in InsurableTest", "l-out"],
-        ["[INFO] Results:", "l-dim"],
-        ["[INFO] Tests run: 31, Failures: 0, Errors: 0, Skipped: 0", "l-ok"],
-        ["[INFO] BUILD SUCCESS", "l-ok"],
-        ["[INFO] Total time:  10.101 s", "l-dim"]
+        ["consignment.weightKg        = 12.5", "l-info"],
+        ["consignment.serviceLevel    = STANDARD", "l-info"],
+        ["consignment.zone            = JHB-NORTH", "l-info"],
+        ["consignment.addressVerified = true   (set by constructor)", "l-info"],
+        ["consignment.onHold          = false", "l-info"],
+        ["consignment → SP-100245 (STANDARD, 12.5kg, zone JHB-NORTH)", "l-ok"]
       ]
     },
     {
-      cmd: "./mvnw exec:java -Dexec.mainClass=za.co.swiftparcel.courier.Main",
-      badge: "Step 3 of 3",
-      title: "Run the program",
-      body: "This launches <code>Main</code>: it checks whether consignment <code>SP-100245</code> can be loaded, decides the next delivery step, then persists everything to SQLite and reloads it. Long command — use <strong>Insert</strong> if you like, then press Enter.",
-      autoTitle: "Executing the entry point",
-      autoBody: "<code>Main</code> runs the dispatch rules, records a delivery attempt, creates the SQLite schema, saves the consignment and reads it back.",
-      hint: "Use the Insert button, or type: ./mvnw exec:java -Dexec.mainClass=za.co.swiftparcel.courier.Main",
+      cmd: "rules.canLoadOntoVehicle(consignment, driver)",
+      badge: "Rule 1/3",
+      title: "Can it be loaded?",
+      body: "DeliveryRulesService evaluates six conditions before a driver may take the consignment. Watch each condition pass.",
+      autoTitle: "Running canLoadOntoVehicle()",
+      autoBody: "<code>DeliveryRulesService.canLoadOntoVehicle()</code> checks shift, hold, address, capacity, certifications and zone.",
+      hint: "Try: rules.canLoadOntoVehicle(consignment, driver)",
+      stage: 1,
       lines: [
-        ["Can load SP-100245 (STANDARD, 12.5kg, zone JHB-NORTH) onto Thabo Mokoena (DRV-07, zone JHB-NORTH)? true", "l-key"],
-        ["Next step for SP-100245: SCHEDULE_REDELIVERY", "l-ok"],
+        ["canLoadOntoVehicle(SP-100245 → DRV-07)", "l-info"],
+        ["", "l-out"],
+        ["  driver.isOnShift()                 → true                     ✓", "l-info"],
+        ["  !consignment.isOnHold()            → true                     ✓", "l-info"],
+        ["  consignment.isAddressVerified()    → true                     ✓", "l-info"],
+        ["  load + weight ≤ capacity           → 0.0 + 12.5 ≤ 800.0       ✓", "l-info"],
+        ["  !fragile || fragileCertified       → not fragile             n/a", "l-dim"],
+        ["  !cashOnDelivery || approved        → not COD                n/a", "l-dim"],
+        ["  zone matches or SAME_DAY           → JHB-NORTH == JHB-NORTH   ✓", "l-info"],
+        ["", "l-out"],
+        ["canLoadOntoVehicle → true", "l-ok"]
+      ]
+    },
+    {
+      cmd: 'consignment.recordAttempt(NO_ONE_HOME, "Gate locked")',
+      badge: "Rule 2/3",
+      title: "Record a failed attempt",
+      body: "Main records that the first delivery attempt failed because nobody was home. Attempts accumulate in a list on the consignment.",
+      autoTitle: "Recording a delivery attempt",
+      autoBody: "A <code>DeliveryAttempt</code> with outcome <code>NO_ONE_HOME</code> and note \"Gate locked\" is appended.",
+      hint: 'Try: consignment.recordAttempt(NO_ONE_HOME, "Gate locked")',
+      stage: 1,
+      lines: [
+        ["new DeliveryAttempt(now, NO_ONE_HOME, \"Gate locked\")", "l-info"],
+        ["consignment.attempts = [ NO_ONE_HOME ]", "l-info"],
+        ["consignment.isDelivered() → false   (last outcome ≠ DELIVERED)", "l-out"]
+      ]
+    },
+    {
+      cmd: "rules.decideNextStep(consignment)",
+      badge: "Rule 3/3",
+      title: "Decide the next step",
+      body: "decideNextStep() walks the attempt history and dispatch policy to choose what should happen to SP-100245 next.",
+      autoTitle: "Running decideNextStep()",
+      autoBody: "The service inspects the last outcome, the attempt count and the service level to pick the next action.",
+      hint: "Try: rules.decideNextStep(consignment)",
+      stage: 1,
+      lines: [
+        ["decideNextStep(SP-100245)", "l-info"],
+        ["  isDelivered?                 false  → continue", "l-info"],
+        ["  attempts empty?              no     → inspect last", "l-info"],
+        ["  last outcome == REFUSED?     no", "l-info"],
+        ["  last == WRONG_ADDRESS?       no     → re-delivery branch", "l-info"],
+        ["  attempts (1) >= MAX (3)?     no", "l-info"],
+        ["  serviceLevel == STANDARD?    yes    → schedule later", "l-info"],
+        ["", "l-out"],
+        ["decideNextStep → SCHEDULE_REDELIVERY", "l-ok"]
+      ]
+    },
+    {
+      cmd: 'Database.connect("courier.db")',
+      badge: "Persist 1/4",
+      title: "Open the database",
+      body: "Main deletes any stale database file, then opens a fresh SQLite connection.",
+      autoTitle: "Connecting to SQLite",
+      autoBody: "<code>new File(\"courier.db\").delete()</code> clears the old file, then <code>Database.connect()</code> opens a new connection.",
+      hint: 'Try: Database.connect("courier.db")',
+      stage: 2,
+      lines: [
+        ["deleted existing courier.db (if present)", "l-dim"],
+        ["connection open → jdbc:sqlite:courier.db", "l-ok"]
+      ]
+    },
+    {
+      cmd: "DatabaseSchema.createSchema(connection)",
+      badge: "Persist 2/4",
+      title: "Create the schema",
+      body: "The schema helper issues CREATE TABLE statements for the three tables the courier domain needs.",
+      autoTitle: "Creating the schema",
+      autoBody: "<code>DatabaseSchema.createSchema()</code> creates <code>customers</code>, <code>parcels</code> and <code>delivery_attempts</code>.",
+      hint: "Try: DatabaseSchema.createSchema(connection)",
+      stage: 2,
+      lines: [
+        ["CREATE TABLE IF NOT EXISTS customers          ✓", "l-info"],
+        ["CREATE TABLE IF NOT EXISTS parcels            ✓", "l-info"],
+        ["CREATE TABLE IF NOT EXISTS delivery_attempts  ✓", "l-info"],
+        ["schema ready", "l-ok"]
+      ]
+    },
+    {
+      cmd: "repository.save(consignment)",
+      badge: "Persist 3/4",
+      title: "Save consignment and attempts",
+      body: "The repository upserts the consignment into parcels and inserts each recorded attempt into delivery_attempts.",
+      autoTitle: "Saving to the repository",
+      autoBody: "<code>ConsignmentRepository.save()</code> upserts the parcel, then <code>recordAttempt()</code> inserts the attempt row.",
+      hint: "Try: repository.save(consignment)",
+      stage: 2,
+      lines: [
+        ["UPSERT parcels           ← SP-100245 (STANDARD, 12.5kg, JHB-NORTH)", "l-info"],
+        ["INSERT delivery_attempts ← #1 NO_ONE_HOME \"Gate locked\"", "l-info"],
+        ["2 rows written", "l-ok"]
+      ]
+    },
+    {
+      cmd: 'repository.findByTrackingNo("SP-100245")',
+      badge: "Persist 4/4",
+      title: "Reload from SQLite",
+      body: "Finally Main reads the consignment back out of the database and reloads its attempts — proving the round-trip.",
+      autoTitle: "Reading it back",
+      autoBody: "<code>findByTrackingNo()</code> selects the row and <code>loadAttempts()</code> rebuilds the attempt list.",
+      hint: 'Try: repository.findByTrackingNo("SP-100245")',
+      stage: 2,
+      lines: [
+        ["SELECT parcels WHERE tracking_no = 'SP-100245'", "l-info"],
+        ["SELECT delivery_attempts WHERE tracking_no = 'SP-100245'  (1 row)", "l-info"],
         ["Loaded from database: SP-100245 (STANDARD, 12.5kg, zone JHB-NORTH), delivered=false", "l-key"],
         ["Database ready at courier.db", "l-ok"]
       ]
@@ -392,16 +477,18 @@
   ];
 
   var SUMMARY = {
-    badge: "Run complete",
-    title: "What the program just did",
-    body: "The simulated run mirrors <code>za.co.swiftparcel.courier.Main</code>:",
+    badge: "Program complete",
+    title: "What main() just did",
+    body: "The simulated run replays <code>za.co.swiftparcel.courier.Main</code> end to end:",
     bullets: [
-      "<code>canLoadOntoVehicle(...)</code> → <strong>true</strong> — driver is on shift, address verified, 12.5 kg fits the 800 kg vehicle, zones match.",
-      "A <code>NO_ONE_HOME</code> attempt was recorded, so <code>decideNextStep(...)</code> → <strong>SCHEDULE_REDELIVERY</strong> (the 3-attempt limit is not reached).",
-      "The consignment and its attempt were written to the SQLite tables <code>parcels</code> and <code>delivery_attempts</code> in <code>courier.db</code>.",
-      "The consignment was read back from the database — <code>delivered=false</code>."
+      "Built <code>Driver</code> DRV-07 (on shift, 800 kg capacity) and <code>Consignment</code> SP-100245 (STANDARD, 12.5 kg, JHB-NORTH, address verified).",
+      "<code>canLoadOntoVehicle()</code> → <strong>true</strong> — on shift, verified address, 12.5 kg fits, zones match.",
+      "A <code>NO_ONE_HOME</code> attempt was recorded, so <code>decideNextStep()</code> → <strong>SCHEDULE_REDELIVERY</strong> (1 of max 3 attempts, STANDARD service).",
+      "SQLite: schema created, consignment upserted, attempt inserted, then read back — <code>delivered=false</code>, <code>Database ready at courier.db</code>."
     ]
   };
+
+  function stageOf(step) { return step <= 1 ? 0 : step <= 4 ? 1 : 2; }
 
   /* ------------------------------------------------------------------ *
    *  State + helpers
@@ -430,7 +517,7 @@
     if (token !== undefined) throwIfStale(token);
     var el = document.createElement("div");
     el.className = "line echo";
-    el.innerHTML = '<span class="ps1">➜</span> <span class="pwd">~/SwiftParcel</span> ';
+    el.innerHTML = '<span class="ps1">➜</span> <span class="pwd">sp</span> ';
     var span = document.createElement("span");
     span.textContent = cmd;
     el.appendChild(span);
@@ -445,8 +532,8 @@
   function clearScreen() { screen.innerHTML = ""; }
 
   function boot() {
-    appendLine("swiftparcel-demo v1.0 — simulated terminal", "l-dim");
-    appendLine("Nothing here touches your machine; output replays the real Java demo.", "l-dim");
+    appendLine("swiftparcel — simulated REPL v1.0", "l-dim");
+    appendLine("Replaying za.co.swiftparcel.courier.Main step by step. Nothing runs on your machine.", "l-dim");
     appendLine("", "l-out");
   }
 
@@ -457,7 +544,7 @@
       text += cmd.charAt(i);
       e.cmdSpan.textContent = text;
       screen.scrollTop = screen.scrollHeight;
-      await sleep(speed || 26);
+      await sleep(speed || 24);
       throwIfStale(token);
     }
     e.caret.remove();
@@ -466,10 +553,10 @@
   }
 
   async function stream(lines, token, base) {
-    base = base || 110;
+    base = base || 130;
     for (var i = 0; i < lines.length; i++) {
       appendLine(lines[i][0], lines[i][1], token);
-      await sleep(base + Math.random() * 170);
+      await sleep(base + Math.random() * 160);
       throwIfStale(token);
     }
     await sleep(320);
@@ -515,8 +602,7 @@
 
     $("guideClose").hidden = !cfg.closable;
 
-    var bar = $("guideBarWrap");
-    if (cfg.bar) { bar.hidden = false; } else { bar.hidden = true; }
+    if (cfg.bar) { $("guideBarWrap").hidden = false; } else { $("guideBarWrap").hidden = true; }
   }
 
   function shakeGuide() {
@@ -525,14 +611,12 @@
     guide.classList.add("shake");
   }
 
-  /* Auto pop-up: shows, then closes itself (or when "Next" is clicked). */
   function autoPopup(cfg, token) {
     return new Promise(function (resolve) {
       renderGuide(cfg);
       guide.classList.add("auto");
-      var barWrap = $("guideBarWrap"), bar = $("guideBar");
+      var bar = $("guideBar");
       if (cfg.bar) {
-        barWrap.hidden = false;
         bar.style.transition = "none";
         bar.style.width = "0%";
         requestAnimationFrame(function () {
@@ -559,17 +643,16 @@
    * ------------------------------------------------------------------ */
   async function autoStep(step, token) {
     await autoPopup({
-      badge: "Step " + (step + 1) + " of " + STEPS.length,
+      badge: STEPS[step].badge,
       title: STEPS[step].autoTitle,
       body: STEPS[step].autoBody,
       bar: true,
-      closable: true,
-      primary: "Next ▸"
+      closable: true
     }, token);
 
-    setProgress(step + 1);
-    await typeCmd(STEPS[step].cmd, token, 30);
-    await stream(STEPS[step].lines, token, step === 2 ? 420 : 120);
+    setProgress(stageOf(step));
+    await typeCmd(STEPS[step].cmd, token, 24);
+    await stream(STEPS[step].lines, token, step >= 5 ? 150 : 110);
   }
 
   async function runAutomated() {
@@ -588,11 +671,11 @@
       await autoPopup({
         badge: SUMMARY.badge, badgeClass: "gold",
         title: SUMMARY.title, body: SUMMARY.body, bullets: SUMMARY.bullets,
-        bar: true, closable: true, primary: "▶ Run again"
+        bar: true, closable: true
       }, token);
       $("guidePrimary").onclick = function () { runAutomated(); };
       appendLine("", "l-out");
-      appendLine("✓ demo finished — press Reset or switch to Interactive to explore again.", "l-ok");
+      appendLine("✓ program finished — press Reset or switch to Interactive to step through yourself.", "l-ok");
     } catch (e) { if (!e || !e.stale) throw e; }
   }
 
@@ -606,12 +689,12 @@
       title: s.title,
       body: s.body,
       cmd: s.cmd,
-      hintText: null,
       closable: false
     });
     state.tries = 0;
     var secondary = $("guideSecondary");
     secondary.hidden = true;
+    secondary.disabled = false;
     secondary.onclick = null;
     $("guideInsert").disabled = false;
     $("guidePrimary").textContent = "⌨ Type it in the terminal";
@@ -622,7 +705,7 @@
       input.focus();
       input.setSelectionRange(s.cmd.length, s.cmd.length);
     };
-    setProgress(step);
+    setProgress(stageOf(step));
   }
 
   function interactiveSummary() {
@@ -649,7 +732,7 @@
     overlay.hidden = true;
     prompt.hidden = false;
     boot();
-    appendLine("Guided mode: read the card, type the command it shows, press Enter.", "l-info");
+    appendLine("Guided mode: read the card, type the statement it shows, press Enter to execute it.", "l-info");
     appendLine("", "l-out");
     interactiveGuide(0);
     input.disabled = false;
@@ -661,10 +744,10 @@
     var expected = STEPS[state.step];
     var other = STEPS.filter(function (s) { return norm(s.cmd) === norm(raw); })[0];
     if (other) {
-      appendLine("demo: that is a later step — finish the current one first.", "l-warn");
+      appendLine("sp: that statement belongs to a later step — finish the current one first.", "l-warn");
     } else {
-      appendLine("demo: '" + raw + "' is not part of this guided run.", "l-err");
-      appendLine("demo: use the command shown on the guide card.", "l-dim");
+      appendLine("sp: '" + raw + "' is not the next statement in main().", "l-err");
+      appendLine("sp: use the statement shown on the guide card.", "l-dim");
     }
     state.tries++;
     shakeGuide();
@@ -675,6 +758,7 @@
       var secondary = $("guideSecondary");
       secondary.hidden = false;
       secondary.textContent = "Run it for me";
+      secondary.disabled = false;
       secondary.onclick = function () { execute(++state.token, false); };
     }
   }
@@ -692,14 +776,13 @@
     }
   }
 
-  var runningToken = 0;
   async function execute(token, typedByUser) {
     state.running = true;
     input.disabled = true;
     $("guideInsert").disabled = true;
     $("guidePrimary").disabled = true;
     $("guideSecondary").disabled = true;
-    setProgress(state.step + 1);
+    setProgress(stageOf(state.step) + 1);
 
     if (typedByUser) {
       var e = appendEcho("", token);
@@ -708,7 +791,7 @@
     }
     try {
       if (!typedByUser) await typeCmd(STEPS[state.step].cmd, token, 12);
-      await stream(STEPS[state.step].lines, token, state.step === 2 ? 420 : 110);
+      await stream(STEPS[state.step].lines, token, state.step >= 5 ? 150 : 110);
     } catch (e2) {
       if (!e2 || !e2.stale) throw e2;
       return;
@@ -725,7 +808,7 @@
     } else {
       appendLine("", "l-out");
       interactiveSummary();
-      appendLine("✓ guided run finished — nothing left to type.", "l-ok");
+      appendLine("✓ guided program run finished — main() returned.", "l-ok");
     }
   }
 
@@ -750,15 +833,13 @@
   }
 
   function reset() {
-    var mode = state.mode;
-    if (mode === "inter") startInteractive();
+    if (state.mode === "inter") startInteractive();
     else showAutomatedIdle();
   }
 
   function showAutomatedIdle() {
     resetView();
     state.mode = "auto";
-    clearScreen();
     hideGuide();
     $("modeTag").textContent = "automated";
     overlay.hidden = false;
